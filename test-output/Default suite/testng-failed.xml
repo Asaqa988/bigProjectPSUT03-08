@@ -6,8 +6,8 @@
       <class name="Automation.MyTestcases">
         <methods>
           <include name="AfterMyTest"/>
+          <include name="AddItemToTheCart"/>
           <include name="mySetup"/>
-          <include name="AddItemToThecart"/>
         </methods>
       </class> <!-- Automation.MyTestcases -->
     </classes>

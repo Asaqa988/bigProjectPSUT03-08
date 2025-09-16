@@ -3,12 +3,15 @@ package Automation;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
@@ -159,51 +162,34 @@ public class MyTestcases extends myData {
 		
 	}
 	
-	@Test(priority = 4)
-	
-	public void AddItemToThecart() throws InterruptedException {
-		
-		driver.navigate().to(myWebSite);
-		
-		List<WebElement> AllItems = driver.findElements(By.className("prdocutname"));
-		
-		int RandomIndexForTheItem = rand.nextInt(AllItems.size());
+	@Test(priority = 4,invocationCount = 1)
+	public void AddItemToTheCart() {
+	    driver.navigate().to(myWebSite);
+	    Random rand = new Random();
 
-		
-		AllItems.get(9).click();
-		
-		
-		;
-		
-		// logic one 
-		
-		//if(driver.getCurrentUrl().contains("product_id=116")) {
-			//WebElement AvailbleOption = driver.findElement(By.id("option344747"));
-			//AvailbleOption.click();
-		//}
-		
-		
-		// second logic 
-		
-		while(driver.getPageSource().contains("Out of Stock")||driver.getCurrentUrl().contains("product_id=116")) {
-			
-			driver.navigate().back();
-			List<WebElement> AlternativeItems = driver.findElements(By.className("prdocutname"));
-			int AlternativeItem = rand.nextInt(AlternativeItems.size());
+	    for (int i = 0; i < 10; i++) { // max 10 attempts here we can increase momkin 16 
+	        // pick a random item and open it
+	        List<WebElement> items = driver.findElements(By.className("prdocutname"));
+	        int randomItem = rand.nextInt(items.size());
+	        items.get(randomItem).click();
 
-			AlternativeItems.get(15).click();
+	        // check availability
+	        boolean outOfStock = driver.getPageSource().contains("Out of Stock"); // true
+	        boolean blockedProduct = driver.getCurrentUrl().contains("product_id=116");//false
 
-		}
-		
-		
-		
-		
-		WebElement AddToCartButton = driver.findElement(By.cssSelector(".cart"));
-		
-		AddToCartButton.click();
-		
-		System.out.println(driver.getCurrentUrl());
+	        if (!outOfStock && !blockedProduct) {
+	            driver.findElement(By.cssSelector(".cart")).click();
+	            System.out.println("Added to cart: " + driver.getCurrentUrl());
+	            return; // success
+	        }
+
+	        driver.navigate().back(); // try again
+	    }
+
+	    throw new RuntimeException("No in-stock item found after 10 attempts.");
 	}
+
+
 
 	@AfterTest
 	public void AfterMyTest() {
